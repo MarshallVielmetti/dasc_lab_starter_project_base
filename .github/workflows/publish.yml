@@ -1,0 +1,171 @@
+name: Publish student project
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-dasc-lab-starter
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Validate and publish starter and documentation
+    runs-on: ubuntu-latest
+    environment: starter-release
+    env:
+      STARTER_REPOSITORY: MarshallVielmetti/dasc_lab_starter_project
+      STARTER_BRANCH: main
+
+    steps:
+      - name: Check out the canonical project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Verify the student-repository token
+        shell: bash
+        env:
+          STARTER_REPO_TOKEN: ${{ secrets.STARTER_REPO_TOKEN }}
+        run: |
+          if [[ -z "$STARTER_REPO_TOKEN" ]]; then
+            echo "::error title=Missing STARTER_REPO_TOKEN::Create a fine-grained token with Contents read/write access to dasc_lab_starter_project and save it as an Actions secret in this repository or the starter-release environment."
+            exit 1
+          fi
+
+      - name: Check out project_generator
+        uses: actions/checkout@v4
+        with:
+          repository: MarshallVielmetti/project_generator
+          ref: main
+          path: .automation/project-generator
+          persist-credentials: false
+
+      - name: Check out the student repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.STARTER_REPOSITORY }}
+          ref: ${{ env.STARTER_BRANCH }}
+          path: .automation/starter
+          token: ${{ secrets.STARTER_REPO_TOKEN }}
+
+      - name: Move deployment checkouts outside the canonical project
+        shell: bash
+        run: |
+          set -euo pipefail
+          mv .automation/project-generator "$RUNNER_TEMP/project-generator"
+          mv .automation/starter "$RUNNER_TEMP/starter"
+          rmdir .automation
+
+      - name: Install the locked generator environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv sync \
+            --project "$RUNNER_TEMP/project-generator/tools/startergen" \
+            --locked \
+            --group test
+
+      - name: Prepare the generated gh-pages worktree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C "$RUNNER_TEMP/starter" config user.name "startergen release"
+          git -C "$RUNNER_TEMP/starter" config user.email \
+            "startergen-release@users.noreply.github.com"
+
+          if git -C "$RUNNER_TEMP/starter" ls-remote \
+            --exit-code --heads origin refs/heads/gh-pages >/dev/null 2>&1; then
+            git -C "$RUNNER_TEMP/starter" fetch origin \
+              refs/heads/gh-pages:refs/remotes/origin/gh-pages
+            git -C "$RUNNER_TEMP/starter" worktree add \
+              -b gh-pages \
+              "$RUNNER_TEMP/gh-pages" \
+              refs/remotes/origin/gh-pages
+          else
+            git -C "$RUNNER_TEMP/starter" worktree add \
+              --detach "$RUNNER_TEMP/gh-pages"
+            git -C "$RUNNER_TEMP/gh-pages" switch --orphan gh-pages
+          fi
+
+      - name: Release the student artifact and versioned documentation
+        id: release
+        shell: bash
+        run: |
+          set -o pipefail
+          set +e
+          uv run \
+            --project "$RUNNER_TEMP/project-generator/tools/startergen" \
+            --locked \
+            --group test \
+            startergen release \
+            --root "$GITHUB_WORKSPACE" \
+            --starter-worktree "$RUNNER_TEMP/starter" \
+            --docs-root "$RUNNER_TEMP/gh-pages" \
+            --expected-starter-branch "$STARTER_BRANCH" \
+            --json 2>&1 | tee "$RUNNER_TEMP/release-result.json"
+          release_status=${PIPESTATUS[0]}
+          set -e
+
+          if [[ "$release_status" -ne 0 ]]; then
+            if grep -Eq \
+              '"code": "(immutable_release_conflict|immutable_tag_conflict|stale_release|transaction_conflict)"' \
+              "$RUNNER_TEMP/release-result.json"; then
+              echo "::error title=Increment publication.release_id::The configured release ID has already been published. Increment publication.release_id in teaching/config.yml, commit the change, and push main again."
+            fi
+            exit "$release_status"
+          fi
+
+      - name: Publish the generated GitHub Pages branch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          printf '%s\n' \
+            '<!doctype html>' \
+            '<html lang="en">' \
+            '<head>' \
+            '  <meta charset="utf-8">' \
+            '  <meta http-equiv="refresh" content="0; url=latest/">' \
+            '  <link rel="canonical" href="latest/">' \
+            '  <title>DASC Lab Starter Project</title>' \
+            '</head>' \
+            '<body>' \
+            '  <p><a href="latest/">Open the latest DASC lab documentation.</a></p>' \
+            '</body>' \
+            '</html>' \
+            > "$RUNNER_TEMP/gh-pages/index.html"
+          touch "$RUNNER_TEMP/gh-pages/.nojekyll"
+
+          git -C "$RUNNER_TEMP/gh-pages" add --all
+          if git -C "$RUNNER_TEMP/gh-pages" diff --cached --quiet; then
+            echo "The gh-pages branch already contains this documentation."
+          else
+            git -C "$RUNNER_TEMP/gh-pages" commit \
+              -m "Publish documentation from ${GITHUB_SHA}"
+            git -C "$RUNNER_TEMP/gh-pages" push origin HEAD:gh-pages
+          fi
+
+      - name: Write deployment summary
+        shell: bash
+        run: |
+          {
+            echo "## DASC lab publication complete"
+            echo
+            echo "- Student repository: https://github.com/${STARTER_REPOSITORY}"
+            echo "- Documentation: https://marshallvielmetti.github.io/dasc_lab_starter_project/"
+            echo "- Canonical source: \`${GITHUB_SHA}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

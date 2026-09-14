@@ -13,13 +13,17 @@ The checked-in canonical project should always contain working solutions.
 ```text
 completed canonical project (this repository)
                     |
-                    | startergen validate/build/docs/check
+                    | push a commit to main
                     v
-             build/starter
+      .github/workflows/publish.yml
                     |
-                    | startergen release
-                    v
-    MarshallVielmetti/dasc_lab_starter_project
+                    | startergen validate/check/release
+                    |
+                    +--> dasc_lab_starter_project/main
+                    |      generated student artifact
+                    |
+                    +--> dasc_lab_starter_project/gh-pages
+                           versioned site and latest documentation
 ```
 
 ## Repository map
@@ -37,6 +41,7 @@ completed canonical project (this repository)
 | `teaching/templates/` | Generated README templates | Rendered into generated documentation |
 | `teaching/assets/` | Images and other documentation assets | Yes, through documentation generation |
 | `teaching/background/` | Student-facing background material | Yes, through documentation generation |
+| `.github/workflows/publish.yml` | Automatic publication after pushes to canonical `main` | No |
 | `build/` | Disposable generated artifacts and reports | Never commit |
 
 ## Initial setup
@@ -191,14 +196,42 @@ It verifies that:
 - The fully restored student project passes all public tests.
 - Two independent builds produce identical artifacts and documentation.
 
-## Publish a student release
+## Automatic publication from `main`
 
-Before publishing:
+Every commit pushed to this repository's `main` branch starts `.github/workflows/publish.yml`.
 
-1. Update `publication.release_id` in `teaching/config.yml` to a new immutable release ID.
-2. Run the full `startergen check` successfully with that release ID.
-3. Commit the canonical changes so this checkout is clean and the source revision is auditable.
-4. Ensure the separate `dasc_lab_starter_project` checkout is on its clean `main` branch.
+The workflow:
+
+1. Checks out this canonical project, `project_generator`, and the student repository.
+2. Installs the generator's locked environment.
+3. Creates or checks out a generated `gh-pages` worktree from the student repository.
+4. Runs the complete `startergen release` validation.
+5. Replaces the student repository's `main` contents with the validated starter artifact, commits it, tags the release, pushes it, and verifies the remote references.
+6. Preserves versioned documentation under `releases/<release_id>/`, refreshes `latest/`, creates a root redirect to `latest/`, and pushes the result to `gh-pages`.
+
+The documentation is then available at <https://marshallvielmetti.github.io/dasc_lab_starter_project/>.
+
+### Required one-time GitHub setup
+
+Create a `STARTER_REPO_TOKEN` Actions secret in `dasc_lab_starter_project_base` or its `starter-release` environment.
+
+Use a fine-grained token whose repository access is limited to `dasc_lab_starter_project` and whose Contents permission is read and write.
+
+If branch or tag protection is enabled in the student repository, allow the token's identity to push generated commits and release tags.
+
+After the first successful workflow creates `gh-pages`, open the student repository's **Settings → Pages**, choose **Deploy from a branch**, select `gh-pages` and `/ (root)`, and save.
+
+### Release IDs are intentionally manual
+
+`publication.release_id` in `teaching/config.yml` is immutable once published.
+
+Before pushing a new canonical commit that should publish, increment it to a new version such as `v0.1.1`.
+
+If a push reuses an occupied release ID, the workflow fails safely and displays an `Increment publication.release_id` error with instructions to update the configuration and push again.
+
+A rerun of the same commit and unchanged release is safe because the release operation is idempotent.
+
+### Preview a release locally
 
 Create and inspect a release plan without modifying the student repository:
 
@@ -209,7 +242,9 @@ uv run --project ../project_generator/tools/startergen \
 
 The dry run writes the reviewable transaction to `build/release/<release_id>/transaction.json`.
 
-Publish the validated artifact and versioned documentation:
+The workflow performs the real release after the canonical commit reaches `main`.
+
+For manual recovery, the equivalent local publication command is:
 
 ```bash
 uv run --project ../project_generator/tools/startergen \
@@ -220,7 +255,7 @@ uv run --project ../project_generator/tools/startergen \
   --json
 ```
 
-The real release replaces all non-Git contents of the student checkout with the validated artifact, commits and pushes `main`, creates the immutable release tag, verifies both remote references, and publishes the versioned documentation tree.
+This local command writes versioned documentation to `../dasc_lab_starter_project_docs`; it does not push that directory to `gh-pages`.
 
 Do not run a real release with uncommitted canonical or student-repository changes.
 
@@ -236,7 +271,8 @@ For a normal exercise update:
 6. Run `startergen build` and `startergen docs`, then inspect their outputs.
 7. When preparing a release, increment `publication.release_id`.
 8. Run the complete `startergen check --json`.
-9. Commit the canonical project, review a release dry run, and publish when ready.
+9. Commit and push the canonical project to `main`.
+10. Confirm that the `Publish student project` workflow completed successfully.
 
 ## Repository boundary
 
