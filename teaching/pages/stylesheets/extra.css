@@ -1,0 +1,22 @@
+:root > * {
+  --md-primary-fg-color: #00274c;
+  --md-primary-fg-color--light: #24476b;
+  --md-primary-fg-color--dark: #001f3d;
+  --md-accent-fg-color: #b58b00;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #00274c;
+  --md-accent-fg-color: #ffcb05;
+}
+
+.md-typeset h1,
+.md-typeset h2 {
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 0.35rem;
+}

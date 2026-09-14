@@ -38,6 +38,8 @@ completed canonical project (this repository)
 | `teaching/config.yml` | Project, output, allowlist, documentation, and release settings | No |
 | `teaching/exercises.yml` | Exercise targets, dependencies, scaffolds, and expected baseline failures | No |
 | `teaching/project.md` | Main student instructions | Rendered into generated documentation |
+| `teaching/pages/` | Additional Material for MkDocs pages and site-only assets | Rendered into generated documentation |
+| `teaching/mkdocs.yml` | Site navigation, theme, Markdown extensions, and presentation | No |
 | `teaching/templates/` | Generated README templates | Rendered into generated documentation |
 | `teaching/assets/` | Images and other documentation assets | Yes, through documentation generation |
 | `teaching/background/` | Student-facing background material | Yes, through documentation generation |
@@ -111,6 +113,13 @@ Insert an exercise link with a standalone directive:
 
 Place images in `teaching/assets/`, background readings in `teaching/background/`, and README layout changes in `teaching/templates/README.md.j2`.
 
+The generated website uses Material for MkDocs.
+Add website pages below `teaching/pages/`, register Markdown pages in the `nav` section of `teaching/mkdocs.yml`, and put site-only CSS or JavaScript below that pages directory.
+The main `teaching/project.md` remains both the generated README content and the website home page.
+
+The optional `documentation.pages` and `documentation.site_config` paths in `teaching/config.yml` select the additional page tree and MkDocs configuration.
+`startergen` preprocesses Markdown exercise directives and local links, performs a strict MkDocs build, and writes only the compiled static site to `build/site/`.
+
 `startergen docs` resolves exercise links against the final transformed source, so generated line numbers should not be maintained manually.
 
 ### Change dependencies or distributed files
@@ -172,6 +181,15 @@ Inspect these outputs:
 - `build/starter/README.md` for the generated student README.
 - `build/docs-src/` for generated source documentation and exercise metadata.
 - `build/site/` for the versioned documentation site.
+
+The site output is compiled HTML, CSS, JavaScript, search data, and static assets.
+Preview it with a local HTTP server rather than opening `index.html` directly:
+
+```bash
+python -m http.server --directory build/site 8000
+```
+
+Then open <http://localhost:8000/>.
 
 External HTTP links are skipped by default.
 

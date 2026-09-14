@@ -17,10 +17,12 @@ documentation:
   assets: teaching/assets
   background: teaching/background
   readme_template: teaching/templates/README.md.j2
+  pages: teaching/pages
+  site_config: teaching/mkdocs.yml
   generated_source: build/docs-src
   site_output: build/site
 publication:
   starter_repository: MarshallVielmetti/dasc_lab_starter_project
   branch: main
-  release_id: v0.1.0
+  release_id: v0.1.1
   docs_base_url: https://marshallvielmetti.github.io/dasc_lab_starter_project/
