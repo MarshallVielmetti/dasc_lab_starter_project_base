@@ -1,0 +1,26 @@
+schema_version: 1
+project:
+  name: DASC Lab Starter Project
+  import_package: dasc_lab
+starter:
+  output: build/starter
+  include:
+    - src/dasc_lab
+    - tests/public
+    - tests/smoke
+    - examples
+    - pyproject.toml
+    - uv.lock
+  exclude: []
+documentation:
+  source: teaching/project.md
+  assets: teaching/assets
+  background: teaching/background
+  readme_template: teaching/templates/README.md.j2
+  generated_source: build/docs-src
+  site_output: build/site
+publication:
+  starter_repository: MarshallVielmetti/dasc_lab_starter_project
+  branch: main
+  release_id: v0.1.0
+  docs_base_url: https://marshallvielmetti.github.io/dasc_lab_starter_project/

@@ -1,0 +1,18 @@
+schema_version: 1
+exercises:
+  - id: unicycle-dynamics
+    title: Unicycle forward dynamics
+    source:
+      file: src/dasc_lab/dynamics/unicycle.py
+      symbol: UnicycleDynamics.f
+    requires: []
+    starter:
+      strategy: replace_body
+      docstring: preserve
+      body: null
+    tests:
+      public:
+        - tests/public/test_unicycle.py::test_forward_motion
+      baseline:
+        - nodeid: tests/public/test_unicycle.py::test_forward_motion
+          expected: stub_error
