@@ -229,19 +229,9 @@ The workflow:
 
 The documentation is then available at <https://marshallvielmetti.github.io/dasc_lab_starter_project/>.
 
-### Required one-time GitHub setup
+### Release IDs
 
-Create a `STARTER_REPO_TOKEN` Actions secret in `dasc_lab_starter_project_base` or its `starter-release` environment.
-
-Use a fine-grained token whose repository access is limited to `dasc_lab_starter_project` and whose Contents permission is read and write.
-
-If branch or tag protection is enabled in the student repository, allow the token's identity to push generated commits and release tags.
-
-After the first successful workflow creates `gh-pages`, open the student repository's **Settings → Pages**, choose **Deploy from a branch**, select `gh-pages` and `/ (root)`, and save.
-
-### Release IDs are intentionally manual
-
-`publication.release_id` in `teaching/config.yml` is immutable once published.
+Before pushing to main, you must manually increment `publication.release_id` in `teaching/config.yml`.
 
 Before pushing a new canonical commit that should publish, increment it to a new version such as `v0.1.1`.
 
@@ -250,6 +240,38 @@ If a push reuses an occupied release ID, the workflow fails safely and displays 
 A rerun of the same commit and unchanged release is safe because the release operation is idempotent.
 
 ### Preview a release locally
+
+From dasc_lab_starter_project_base, generate both the student project and Material site with:
+
+```bash
+uv sync --project ../project_generator/tools/startergen \
+  --locked --group test
+
+uv run --project ../project_generator/tools/startergen \
+  startergen docs --root .
+```
+
+This produces:
+
+- build/starter/ — generated student project
+- build/site/ — compiled MkDocs Material site
+- build/docs-src/ — generated source metadata
+Preview the site:
+
+```bash
+python -m http.server --directory build/site 8000
+```
+
+Then visit <http://localhost:8000/>.
+
+To experiment manually with the generated student project:
+
+```bash
+cd build/starter
+uv sync --locked --group test
+uv run pytest tests/smoke
+uv run pytest tests/public
+```
 
 Create and inspect a release plan without modifying the student repository:
 
@@ -260,7 +282,7 @@ uv run --project ../project_generator/tools/startergen \
 
 The dry run writes the reviewable transaction to `build/release/<release_id>/transaction.json`.
 
-The workflow performs the real release after the canonical commit reaches `main`.
+(MAY BE OUTDATED): The workflow performs the real release after the canonical commit reaches `main`.
 
 For manual recovery, the equivalent local publication command is:
 

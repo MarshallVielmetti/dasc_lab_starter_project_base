@@ -7,7 +7,6 @@ edit_uri: ""
 theme:
   name: material
   features:
-    - navigation.sections
     - navigation.top
     - navigation.footer
     - search.suggest
@@ -32,7 +31,11 @@ theme:
 nav:
   - Home: index.md
   - Getting started: getting-started.md
-  - Exercise guide: exercise-guide.md
+  - Dynamics Models: dynamics-models.md
+      # - Overview: dynamics-models.md
+      # - Linear System: dynamics_models/linear_system.md
+      # - Single Integrator: dynamics_models/single_integrator.md
+      # - Double Integrator: dynamics_models/double_integrator.md
   - Background: background.md
 
 markdown_extensions:

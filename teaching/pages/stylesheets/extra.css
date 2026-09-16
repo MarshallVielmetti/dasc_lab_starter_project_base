@@ -1,4 +1,4 @@
-:root > * {
+:root>* {
   --md-primary-fg-color: #00274c;
   --md-primary-fg-color--light: #24476b;
   --md-primary-fg-color--dark: #001f3d;
@@ -6,7 +6,7 @@
 }
 
 [data-md-color-scheme="slate"] {
-  --md-primary-fg-color: #00274c;
+  --md-primary-fg-color: #7CA7CF;
   --md-accent-fg-color: #ffcb05;
 }
 

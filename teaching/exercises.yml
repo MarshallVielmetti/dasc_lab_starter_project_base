@@ -1,10 +1,90 @@
 schema_version: 1
 exercises:
-  - id: unicycle-dynamics
+  - id: linear-dynamics
+    title: General linear dynamics
+    source:
+      file: src/dasc_lab/dynamics/linear.py
+      symbol: LinearDynamics.f
+    requires: []
+    starter:
+      strategy: replace_body
+      docstring: preserve
+      body: null
+    tests:
+      public:
+        - tests/public/test_linear_dynamics.py::test_linear_dynamics
+      baseline:
+        - nodeid: tests/public/test_linear_dynamics.py::test_linear_dynamics
+          expected: stub_error
+  - id: double-integrator
+    title: Double integrator dynamics
+    source:
+      file: src/dasc_lab/dynamics/double_integrator.py
+      symbol: DoubleIntegrator.__init__
+    requires: []
+    starter:
+      strategy: replace_body
+      docstring: preserve
+      body: null
+    tests:
+      public:
+        - tests/public/test_double_integrator.py::test_double_integrator_dynamics
+      baseline:
+        - nodeid: tests/public/test_double_integrator.py::test_double_integrator_dynamics
+          expected: stub_error
+  - id: dynamic-unicycle-2d
+    title: Dynamic unicycle 2D dynamics
+    source:
+      file: src/dasc_lab/dynamics/dynamic_unicycle2d.py
+      symbol: DynamicUnicycle2D.f
+    requires: []
+    starter:
+      strategy: replace_body
+      docstring: preserve
+      body: null
+    tests:
+      public:
+        - tests/public/test_dynamic_unicycle2d.py::test_dynamic_unicycle2d_dynamics
+      baseline:
+        - nodeid: tests/public/test_dynamic_unicycle2d.py::test_dynamic_unicycle2d_dynamics
+          expected: stub_error
+  - id: kinematic-bicycle-2d
+    title: Kinematic bicycle 2D dynamics
+    source:
+      file: src/dasc_lab/dynamics/kinematic_bicycle2D.py
+      symbol: KinematicBicycle2D.f
+    requires: []
+    starter:
+      strategy: replace_body
+      docstring: preserve
+      body: null
+    tests:
+      public:
+        - tests/public/test_kinematic_bicycle2D.py::test_kinematic_bicycle2d_dynamics
+      baseline:
+        - nodeid: tests/public/test_kinematic_bicycle2D.py::test_kinematic_bicycle2d_dynamics
+          expected: stub_error
+  - id: single-integrator
+    title: Single integrator dynamics
+    source:
+      file: src/dasc_lab/dynamics/single_integrator.py
+      symbol: SingleIntegrator.__init__
+    requires: []
+    starter:
+      strategy: replace_body
+      docstring: preserve
+      body: null
+    tests:
+      public:
+        - tests/public/test_single_integrator.py::test_single_integrator_dynamics
+      baseline:
+        - nodeid: tests/public/test_single_integrator.py::test_single_integrator_dynamics
+          expected: stub_error
+  - id: unicycle-2d
     title: Unicycle forward dynamics
     source:
-      file: src/dasc_lab/dynamics/unicycle.py
-      symbol: UnicycleDynamics.f
+      file: src/dasc_lab/dynamics/unicycle_2d.py
+      symbol: Unicycle2D.f
     requires: []
     starter:
       strategy: replace_body
