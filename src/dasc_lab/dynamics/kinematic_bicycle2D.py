@@ -21,5 +21,5 @@ class KinematicBicycle2D(DynamicsModel):
         theta_dot = u[0] * np.tan(x[3]) / self.L
 
         return np.array(
-            [x[0] * np.cos(x[2]), x[1] * np.sin(x[2]), theta_dot, u[1]]
+            [u[0] * np.cos(x[2]), u[0] * np.sin(x[2]), theta_dot, u[1]]
         ).reshape(-1, 1)
