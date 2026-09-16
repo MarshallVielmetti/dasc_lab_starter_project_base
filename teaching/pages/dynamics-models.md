@@ -2,6 +2,8 @@
 
 We use the language of dynamical systems to understand and analyze how robots evolve in the environment.
 
+## Basics of Dynamical Systems
+
 We define for a robot a state vector $\mathbf{x}$, which exists inside of some $n$-dimensional statespace $\mathcal{X}$, which we typically consider to be a subset of the real numbers $\mathbf{R}^n$.
 This state vector include define things like the position of the robot, its velocity, or more abstract things like the state of an estimator or battery charge.
 
@@ -183,7 +185,7 @@ Its state is given by $\begin{bmatrix}x  & z & \theta & \dot{x} & \dot{z} & \dot
 
 ![Planar Quadrotor](assets/dynamics_models/planar_quadrotor.webp)
 
-$L$ is the distance from the center of mass to the rotors, $M$ is the mass of the quadrotor, and $g$ is acceleration due to gravity. It also has moment of intertia $I$ about its center of mass, around the out-of-plane pitch/rotation axis.
+$L$ is the distance from the center of mass to the rotors, $M$ is the mass of the quadrotor, and $g$ is acceleration due to gravity. It also has moment of inertia $I$ about its center of mass, around the out-of-plane pitch/rotation axis.
 
 Its system dynamics are given by
 $$
@@ -192,16 +194,16 @@ $$
   \dot{z}\\\\
   \dot{\theta}\\\\
   \ddot{x}\\\\
-  \ddot{y}\\\\
+  \ddot{z}\\\\
   \ddot{\theta}
 \end{bmatrix} =
 \begin{bmatrix}
     \dot{x}\\\\
-    \dot{y}\\\\
+    \dot{z}\\\\
     \dot{\theta}\\\\
-    -\frac{1}{M} \sin(\theta) * (F_a + F_b)\\\\
-    -g + \frac{1}{M} * \cos(\theta) * (F_a + F_b)\\\\
-    \frac{L}{I} * (F_b - F_a)
+    -\frac{1}{M} \sin(\theta) (F_a + F_b)\\\\
+    -g + \frac{1}{M} \cos(\theta) (F_a + F_b)\\\\
+    \frac{L}{I} (F_b - F_a)
 \end{bmatrix}
 $$
 

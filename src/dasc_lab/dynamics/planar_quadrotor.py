@@ -3,8 +3,8 @@ import numpy as np
 from .dynamics_model import DynamicsModel
 
 
-class Unicycle2D(DynamicsModel):
-    """Class representing a system with 2D Unicycle Dynamics."""
+class PlanarQuadrotor(DynamicsModel):
+    """Class representing a 2D planar quadrotor."""
 
     g = 9.81
 

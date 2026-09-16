@@ -64,6 +64,22 @@ exercises:
       baseline:
         - nodeid: tests/public/test_kinematic_bicycle2D.py::test_kinematic_bicycle2d_dynamics
           expected: stub_error
+  - id: planar-quadrotor
+    title: Planar quadrotor dynamics
+    source:
+      file: src/dasc_lab/dynamics/planar_quadrotor.py
+      symbol: PlanarQuadrotor.f
+    requires: []
+    starter:
+      strategy: replace_body
+      docstring: preserve
+      body: null
+    tests:
+      public:
+        - tests/public/test_planar_quadrotor.py::test_planar_quadrotor_dynamics
+      baseline:
+        - nodeid: tests/public/test_planar_quadrotor.py::test_planar_quadrotor_dynamics
+          expected: stub_error
   - id: single-integrator
     title: Single integrator dynamics
     source:
